@@ -66,3 +66,18 @@ Sobre o trade-off: na prática, subir uma das duas métricas costuma custar a ou
 1. **A acurácia global esconde onde o modelo erra**. É a mesma falha do exemplo da fraude, só que com várias classes. Um número único mistura todas as classes. Um modelo pode acertar tudo em duas classes e ir mal na terceira, e o número global ainda parece bom. Quando você olha uma classe por vez, vê qual delas está falhando.
 2. **O custo do erro costuma ser diferente por classe**. Em muitos problemas reais existe uma classe de interesse (fraude, doença) e o resto. Nesses casos, “classe de interesse contra o resto” é a pergunta que importa, e precision e recall dessa classe respondem a ela diretamente.
 3. **Mostra onde melhorar**. Na matriz da atividade, a Setosa é separada sem nenhum erro. Os erros aparecem só entre as outras duas classes. A visão por classe mostra isso e indica onde ajustar o modelo ou as características usadas.
+
+### F1
+
+O **F1 Score** é uma métrica que calcula a **média harmônica** entre **precision** e **recall**, fornecendo uma medida única de equilíbrio entre falsos positivos e falsos negativos.
+
+Sua fórmula é $\text{F1} = 2 \times \dfrac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}$, resultando em um valor que varia de **0 a 1**.
+
+- **Valor 1:** Indica precisão e recall perfeitos (desempenho ideal).
+- **Valor 0:** Indica desempenho ruim (precisão ou recall nulos).
+
+A fórmula de F1 Score também pode ser desenvolvida para $$\text{F1} = \dfrac{2TP}{2TP + FN + FP}$$
+
+### Especificidade
+
+**Especificidade** é o “recall do lado negativo”. Pergunta: dos casos que **realmente eram negativos**, quantos o modelo reconheceu como negativos? Compare com o recall, que olha só os positivos reais.
