@@ -34,7 +34,7 @@ A base Iris tem 150 amostras, 50 de cada classe. Suponha que um classificador (p
     >
     > Isso significa que, de todos os positivos que existiam, o modelo acertou capturou $90\%$ deles. Ou seja, das 50 Versicolor reais, o modelo encontrou $90\%$.
 
-4. **Bônus:** faça o mesmo para **Virginica** (precision e recall). Qual das duas classes, Versicolor ou Virginica, tem o pior recall? E o pior precision?
+4. Faça o mesmo para **Virginica** (precision e recall). Qual das duas classes, Versicolor ou Virginica, tem o pior recall? E o pior precision?
     > Tratando Virginica como positivo:
     >
     > | | |
@@ -55,3 +55,32 @@ A base Iris tem 150 amostras, 50 de cada classe. Suponha que um classificador (p
     > ---
     >
     > Virginica tem a pior precision e Versicolor tem o pior recall. Isso mostra que o modelo é mais seguro ao classificar um Versicolor, mas falha mais em capturar todas as flores dessa espécie. Por outro lado, o modelo é bom em capturar grande parte das Virginicas, mas pode acabar classificando uma outra espécie como Virginica por engano.
+
+5. Calcule o **F1** e a **especificidade** da classe Versicolor.
+    > $\text{F1}_\text{ve} = 2 \times \dfrac{\text{precision}_\text{ve} \times \text{recall}_\text{ve}}{\text{precision}_\text{ve} + \text{recall}_\text{ve}} = 2 \times \dfrac{0.9574 \times 0.90}{0.9574 + 0.90} = 0.9278 = 92.78\%$
+    >
+    > Como a especificidade calcula **quanto dos casos realmente negativos** o modelo reconheceu corretamente, seu denominador será os casos realmente negativos, ou seja, $FP + TN$ e seu numerador, $TN$:
+    >
+    > $\text{especificidade} = \dfrac{TN}{FP + TN} = \dfrac{98}{100} = 0.98 = 98\%$
+    >
+    > Ou seja, das amostras que não eram Versicolor, o modelo reconheceu corretamente $98\%$ delas.
+
+6. Separe **TP, FN, FP e TN** da classe **Setosa**. Calcule sua **precision** e o **recall** e escreva em uma frase o que esses valores indicam sobre o modelo para essa classe.
+    > Tratando Setosa como positivo:
+    >
+    > | | |
+    > | --- | --- |
+    > | $TP = 50$ | $FN = 0$ |
+    > | $FP = 0$ | $TN = 45 + 5 + 2 + 48 = 100$ |
+    >
+    > Da tabela, $50 + 0 + 0 + 100 = 150$.
+    >
+    > $\text{precision} = \dfrac{TP}{TP + FP} = \dfrac{50}{50} = 1 = 100\%$
+    >
+    > Ou seja, de todas as amostras que o modelo marcou como Setosa, $100\%$ delas eram realmente setosas.
+    >
+    > $\text{recall} = \dfrac{TP}{TP + FN} = \dfrac{50}{50} = 1 = 100\%$
+    >
+    > Ou seja, de todas as amostras que realmente eram Setosa, o modelo capturou $100\%$ delas.
+    >
+    > **Conclusão:** O modelo separa Setosa **perfeitamente** das outras classes. Acertou em todas as vezes que predisse Setosa e não deixou nenhuma amostra dessa espécie passar.
