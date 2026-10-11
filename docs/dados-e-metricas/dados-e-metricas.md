@@ -58,6 +58,8 @@ Sobre o trade-off: na prática, subir uma das duas métricas costuma custar a ou
 > - Era Versicolor e o modelo disse outra coisa → **FN**
 > - Não era Versicolor e o modelo disse Versicolor → **FP**
 > - Não era Versicolor e o modelo disse outra coisa → **TN**
+>
+> Cada erro entre duas classes conta duas vezes, como FN para uma e FP para a outra. Por isso a análise por classe mostra onde o modelo erra, e a accuracy global não mostra.
 
 Útil por três motivos:
 
