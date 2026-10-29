@@ -1,1 +1,4 @@
 rascunho.md
+
+__pycache__/
+*.pyc
