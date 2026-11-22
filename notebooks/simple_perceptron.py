@@ -69,10 +69,16 @@ print("treinando...")
 learning_rate = 0.001
 
 acc_train_history, acc_val_history = [], []
-w_train_ideal, w_val_ideal = w.copy(), w.copy()
+w_acc_ideal, acc_val_ideal, epoch_val_ideal = w.copy(), -np.inf, None
 
-epochs = 1000
+epochs = 3000
 for epoch in range(epochs):
+    # sample shuffle per each epoch
+    idxs = np.random.permutation(len(X_train))
+    X_train = X_train[idxs]
+    y_train = y_train[idxs]
+
+    # train per each sample
     for i_samp in range(len(X_train)):
         x = X_train[i_samp]
         y_pred = feedforward(x, w)
@@ -80,19 +86,18 @@ for epoch in range(epochs):
         error = y_pred - y_real
         w -= learning_rate * error * x
 
+    # accuracies per each epoch
     # train accuracy
     acc_train_p = get_accuracy(X_train, w, y_train)
-    if not acc_train_history or acc_train_p > max(acc_train_history):
-        w_train_ideal = w.copy()
     acc_train_history.append(acc_train_p)
-
     # validation accuracy
     acc_val_p = get_accuracy(X_val, w, y_val)
-    if not acc_val_history or acc_val_p > max(acc_val_history):
-        w_val_ideal = w.copy()
+    if not acc_val_history or acc_val_p >= max(acc_val_history):
+        w_acc_ideal, acc_val_ideal, epoch_val_ideal = w.copy(), acc_val_p, epoch + 1
     acc_val_history.append(acc_val_p)
 
-    if (epoch + 1) % 100 == 0:
+    # print per each 200 epochs
+    if (epoch + 1) % 200 == 0:
         print(f"{epoch + 1}ª época | acurácia de treino: {acc_train_p:.4f} | acurácia de validação: {acc_val_p:.4f}")
 
 # %%
@@ -100,15 +105,8 @@ acc_f = get_accuracy(X_train, w, y_train)
 print(f"acurácia de treino final: {acc_f:.4f}")
 print(f"w final: {w}\n")
 
-acc_train_max = max(acc_train_history)
-epoca_train_max = acc_train_history.index(acc_train_max) + 1
-print(f"acurácia de treino máxima: {acc_train_max:.4f} | época: {epoca_train_max}")
-print(f"w ideal de treino: {w_train_ideal}\n")
-
-acc_val_max = max(acc_val_history)
-epoca_val_max = acc_val_history.index(acc_val_max) + 1
-print(f"acurácia de validação máxima: {acc_val_max:.4f} | época: {epoca_val_max}")
-print(f"w ideal de validação: {w_val_ideal}")
+print(f"acurácia de validação máxima: {acc_val_ideal:.4f} | época: {epoch_val_ideal}")
+print(f"w ideal de validação: {w_acc_ideal}")
 
 # %%
 epocas = range(1, len(acc_train_history) + 1)
@@ -126,10 +124,7 @@ plt.show()
 # %%
 print("aplicando w ideal aos dados de teste...\n")
 
-acc_test_train = get_accuracy(X_test, w_train_ideal, y_test)
-print(f"acurácia de teste (w ideal de treino): {acc_test_train:.4f}")
-
-acc_test_val = get_accuracy(X_test, w_val_ideal, y_test)
-print(f"acurácia de teste (w ideal da validação): {acc_test_val:.4f}")
+acc_test_val = get_accuracy(X_test, w_acc_ideal, y_test)
+print(f"acurácia de teste (w ideal da validação para acurácia): {acc_test_val:.4f}")
 
 # %%
