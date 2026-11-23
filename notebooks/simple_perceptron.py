@@ -61,6 +61,12 @@ def get_accuracy(X, w, y):
     predicted_classes = get_class(probs)
     return np.mean(predicted_classes == y)
 
+def get_loss(X, w, y):
+    eps = 1e-15
+    probs = np.clip(feedforward(X, w), eps, 1 - eps)
+    losses = -(y * np.log(probs) + (1 - y) * np.log(1 - probs))
+    return np.mean(losses)
+
 # %%
 w = np.zeros(n_feat) # w é n_feats x 1
 print(f"w inicial: {w}\n")
@@ -68,8 +74,11 @@ print(f"w inicial: {w}\n")
 print("treinando...")
 learning_rate = 0.001
 
-acc_train_history, acc_val_history = [], []
-w_acc_ideal, acc_val_ideal, epoch_val_ideal = w.copy(), -np.inf, None
+train_acc_history, val_acc_history = [], []
+ideal_acc_w, ideal_val_acc_value, ideal_val_acc_epoch = w.copy(), -np.inf, None
+
+train_loss_history, val_loss_history = [], []
+ideal_loss_w, ideal_val_loss_value, ideal_val_loss_epoch = w.copy(), np.inf, None
 
 epochs = 3000
 for epoch in range(epochs):
@@ -88,31 +97,45 @@ for epoch in range(epochs):
 
     # accuracies per each epoch
     # train accuracy
-    acc_train_p = get_accuracy(X_train, w, y_train)
-    acc_train_history.append(acc_train_p)
+    partial_train_acc = get_accuracy(X_train, w, y_train)
+    train_acc_history.append(partial_train_acc)
     # validation accuracy
-    acc_val_p = get_accuracy(X_val, w, y_val)
-    if not acc_val_history or acc_val_p >= max(acc_val_history):
-        w_acc_ideal, acc_val_ideal, epoch_val_ideal = w.copy(), acc_val_p, epoch + 1
-    acc_val_history.append(acc_val_p)
+    partial_val_acc = get_accuracy(X_val, w, y_val)
+    if not val_acc_history or partial_val_acc >= max(val_acc_history):
+        ideal_acc_w, ideal_val_acc_value, ideal_val_acc_epoch = w.copy(), partial_val_acc, epoch + 1
+    val_acc_history.append(partial_val_acc)
+
+    # losses per each epoch
+    # train loss
+    partial_train_loss = get_loss(X_train, w, y_train)
+    train_loss_history.append(partial_train_loss)
+    # validation loss
+    partial_val_loss = get_loss(X_val, w, y_val)
+    if not val_loss_history or partial_val_loss <= min(val_loss_history):
+        ideal_loss_w, ideal_val_loss_value, ideal_val_loss_epoch = w.copy(), partial_val_loss, epoch + 1
+    val_loss_history.append(partial_val_loss)
 
     # print per each 200 epochs
     if (epoch + 1) % 200 == 0:
-        print(f"{epoch + 1}ª época | acurácia de treino: {acc_train_p:.4f} | acurácia de validação: {acc_val_p:.4f}")
+        print(f"{epoch + 1}ª época | acurácia de validação: {partial_val_acc:.4f} | perda de validação: {partial_val_loss:.4f}")
 
-# %%
 acc_f = get_accuracy(X_train, w, y_train)
-print(f"acurácia de treino final: {acc_f:.4f}")
-print(f"w final: {w}\n")
-
-print(f"acurácia de validação máxima: {acc_val_ideal:.4f} | época: {epoch_val_ideal}")
-print(f"w ideal de validação: {w_acc_ideal}")
+print(f"\nacurácia final de treino: {acc_f:.4f}")
+print(f"w final de treino: {w}\n")
 
 # %%
-epocas = range(1, len(acc_train_history) + 1)
+
+print(f"acurácia máxima de validação: {ideal_val_acc_value:.4f} | época: {ideal_val_acc_epoch}")
+print(f"w ideal de validação (acurácia): {ideal_acc_w}")
+
+print(f"\nperda mínima de validação: {ideal_val_loss_value:.4f} | época: {ideal_val_loss_epoch}")
+print(f"w ideal de validação (perda): {ideal_loss_w}")
+
+# %%
+epocas = range(1, len(train_acc_history) + 1)
 plt.figure(figsize=(8, 5))
-plt.plot(epocas, acc_train_history, label="Train")
-plt.plot(epocas, acc_val_history, label="Val")
+plt.plot(epocas, train_acc_history, label="Train")
+plt.plot(epocas, val_acc_history, label="Val")
 plt.xlabel("Época")
 plt.ylabel("Acurácia")
 plt.title("Progressão da acurácia por época")
@@ -122,9 +145,30 @@ plt.tight_layout()
 plt.show()
 
 # %%
+plt.figure(figsize=(8, 5))
+plt.plot(epocas, train_loss_history, label="Train")
+plt.plot(epocas, val_loss_history, label="Val")
+plt.xlabel("Época")
+plt.ylabel("Loss")
+plt.title("Progressão da loss por época")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# %%
 print("aplicando w ideal aos dados de teste...\n")
 
-acc_test_val = get_accuracy(X_test, w_acc_ideal, y_test)
-print(f"acurácia de teste (w ideal da validação para acurácia): {acc_test_val:.4f}")
+print("considerando o w ideal da acurácia:")
+acc_test_val = get_accuracy(X_test, ideal_acc_w, y_test)
+print(f"acurácia de teste: {acc_test_val:.4f}")
+loss_test_val = get_loss(X_test, ideal_acc_w, y_test)
+print(f"perda de teste: {loss_test_val:.4f}")
+
+print("\nconsiderando o w ideal da perda:")
+acc_test_val = get_accuracy(X_test, ideal_loss_w, y_test)
+print(f"acurácia de teste: {acc_test_val:.4f}")
+loss_test_val = get_loss(X_test, ideal_loss_w, y_test)
+print(f"perda de teste: {loss_test_val:.4f}")
 
 # %%
