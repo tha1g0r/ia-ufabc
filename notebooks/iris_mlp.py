@@ -1,25 +1,46 @@
 # %%
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 
 # %%
 data = pd.read_csv("../data/iris.csv")
 data.drop(columns="Id", inplace=True)
 
-# %%
-from sklearn.preprocessing import LabelEncoder
+features = ["SepalLengthCm", "SepalWidthCm", "PetalLengthCm", "PetalWidthCm"]
+target = "Species"
 
-X = data.iloc[:, :4].to_numpy() # 150 x 4
+# %%
+X = data.loc[:, features].to_numpy() # 150 x 4
 X = np.column_stack((X, np.ones(X.shape[0]))) # 150 x 5
 
-y = LabelEncoder().fit_transform(data["Species"]) # 150
+y = LabelEncoder().fit_transform(data[target]) # 150
 # setosa -> 0
 # versicolor -> 1
 # virginica -> 2
 
 # %%
-n_entries = X.shape[1] # 5
+X_train, X_test, y_train, y_test = train_test_split(
+	X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+Y_onehot_train = np.eye(3)[y_train]
+Y_onehot_test = np.eye(3)[y_test]
+
+
+# %%
+n_entries = len(features)
+n_classes = 3
 h_size = 8
-W1 = np.zeros((h_size, n_entries)) # 8 x 5
+
+# A inicialização de W não pode ser uma matriz de zeros. Com todos os pesos iguais, todos os neurônios ocultos calculam a mesma coisa. Os gradientes também ficam idênticos, então eles recebem a mesma atualização e continuam idênticos sempre. Na prática, a camada oculta funcionaria como um único neurônio.
+rng = np.random.default_rng(42)
+
+W1 = rng.normal(0, np.sqrt(2 / n_entries), size=(n_entries + 1, h_size)) # 5 x 8 (He)
+W1[-1, :] = 0 # bias começa em zero
+
+W2 = rng.normal(0, np.sqrt(1 / h_size), size=(h_size + 1, n_classes)) # 9 x 3 (Xavier)
+W2[-1, :] = 0
 
 # %%
